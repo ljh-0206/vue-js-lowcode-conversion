@@ -7,7 +7,7 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "git@github.com:ljh-0206/vue-js-lowcode-conversion.git"
+        "url": "https://github.com/ljh-0206/vue-js-lowcode-conversion.git"
     },
     "engines": {
         "vscode": "^1.85.0"
