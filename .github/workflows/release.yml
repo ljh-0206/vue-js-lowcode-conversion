@@ -2,13 +2,13 @@ name: Release VSIX
 
 on:
   push:
-    tags:
-      - "v*"
+    branches:
+      - "main"
   workflow_dispatch:
     inputs:
       tag:
-        description: "Git tag to release (example: v0.0.2)"
-        required: true
+        description: "Release tag (default: latest)"
+        required: false
         type: string
 
 permissions:
@@ -34,10 +34,10 @@ jobs:
         id: meta
         shell: bash
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.tag }}" ]; then
             tag="${{ github.event.inputs.tag }}"
           else
-            tag="${GITHUB_REF_NAME}"
+            tag="latest"
           fi
 
           if [ -z "$tag" ]; then
@@ -67,10 +67,13 @@ jobs:
           fi
           echo "path=$vsix" >> "$GITHUB_OUTPUT"
 
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+      - name: Create or update GitHub Release
+        uses: ncipollo/release-action@v1
         with:
-          tag_name: ${{ steps.meta.outputs.tag }}
+          tag: ${{ steps.meta.outputs.tag }}
           name: ${{ steps.meta.outputs.tag }}
-          files: ${{ steps.vsix.outputs.path }}
-          generate_release_notes: true
+          commit: ${{ github.sha }}
+          artifacts: ${{ steps.vsix.outputs.path }}
+          allowUpdates: true
+          replacesArtifacts: true
+          generateReleaseNotes: true

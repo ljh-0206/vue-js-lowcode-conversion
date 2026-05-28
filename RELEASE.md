@@ -8,8 +8,6 @@ Prefer automated publishing with GitHub Actions workflow:
 
 - `.github/workflows/release.yml`
 - Workflow name: `Release VSIX`
-- `.github/workflows/marketplace-publish.yml`
-- Workflow name: `Publish to VS Marketplace`
 
 Manual release remains available as a fallback.
 
@@ -18,38 +16,22 @@ Manual release remains available as a fallback.
 ### Option A: Push tag to trigger
 
 ```powershell
-git tag -a v0.0.2 -m "Release v0.0.2"
-git push origin v0.0.2
+git push origin main
 ```
 
 ### Option B: Run workflow manually
 
 1. Open GitHub repository -> `Actions` -> `Release VSIX`.
 2. Click `Run workflow`.
-3. Provide tag input such as `v0.0.2`.
+3. Optional: provide custom tag input (default is `latest`).
 
 The workflow will:
 
 - install dependencies
 - compile extension
 - package `.vsix`
-- create/update GitHub Release
+- create/update GitHub Release (`latest` by default)
 - upload `.vsix` as release asset
-
-## Publish to Visual Studio Marketplace
-
-### Prerequisites
-
-- Visual Studio Marketplace Publisher is created.
-- `package.json` `publisher` matches that Publisher ID.
-- GitHub repo secret `VSCE_PAT` is configured.
-
-### Trigger
-
-- Push a `v*` tag, or
-- Run `Publish to VS Marketplace` from GitHub Actions manually.
-
-The workflow publishes the current extension version from `package.json` to Visual Studio Marketplace.
 
 ## Scope
 
@@ -126,22 +108,24 @@ gh release create v0.0.2 '.\<extension-name>-0.0.2.vsix' --title 'v0.0.2' --note
 - `npm run compile` passes
 - `npm run package` produces the expected `.vsix`
 - Git commit is created
-- Git tag is pushed
+- Commit is pushed to `main`
 - GitHub Actions `Release VSIX` run succeeds (recommended path)
-- GitHub Actions `Publish to VS Marketplace` run succeeds
 - GitHub Release is created with the `.vsix` asset
 
 ## Quick Template
 
-When releasing `vX.Y.Z`, replace all version placeholders and run:
+When releasing a normal update, run:
 
 ```powershell
 npm run compile
 npm run package
 git add .
-git commit -m "chore: release vX.Y.Z"
-git tag -a vX.Y.Z -m "Release vX.Y.Z"
+git commit -m "chore: release update"
 git push origin main
-git push origin vX.Y.Z
-gh release create vX.Y.Z '.\<extension-name>-X.Y.Z.vsix' --title 'vX.Y.Z' --notes 'See CHANGELOG.md for release details.'
+```
+
+Optional custom tagged release:
+
+```powershell
+gh workflow run release.yml -f tag=v0.0.2
 ```
