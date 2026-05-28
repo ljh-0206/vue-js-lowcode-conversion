@@ -1,0 +1,51 @@
+{
+  "name": "vue-js-lowcode-conversion",
+  "displayName": "vue-js-lowcode-conversion",
+  "description": "Install and update the vue-js-lowcode-conversion Copilot skill on any VS Code device.",
+  "version": "0.0.1",
+  "publisher": "local",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "vue-js-lowcode-conversion.installSkill",
+        "title": "VueToJS: Install or Update Copilot Skill",
+        "category": "VueToJS"
+      },
+      {
+        "command": "vue-js-lowcode-conversion.openInstalledSkill",
+        "title": "VueToJS: Open Installed Skill Folder",
+        "category": "VueToJS"
+      },
+      {
+        "command": "vue-js-lowcode-conversion.openBundledSkill",
+        "title": "VueToJS: Open Bundled Skill File",
+        "category": "VueToJS"
+      }
+    ]
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package --allow-missing-repository"
+  },
+  "overrides": {
+    "cheerio": "1.0.0-rc.12"
+  },
+  "devDependencies": {
+    "@types/node": "^18.19.33",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.4.5",
+    "vsce": "2.10.0"
+  }
+}
