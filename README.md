@@ -33,5 +33,17 @@ npm run package
 The generated `.vsix` file can be uploaded to a GitHub Release and installed on another machine with:
 
 ```powershell
-code --install-extension .\vue-js-lowcode-conversion-0.0.1.vsix
+code --install-extension .\<extension-name>-<version>.vsix
 ```
+
+## Release Process
+
+See [RELEASE.md](RELEASE.md) for the generic version bump, packaging, tag, and GitHub Release steps.
+
+## Automated Release
+
+This repository includes [release.yml](.github/workflows/release.yml) for automated publishing.
+
+- Push a tag like `v0.0.2` to trigger auto release.
+- Or run the workflow manually and provide a tag.
+- The workflow compiles, packages the `.vsix`, creates/updates the GitHub Release, and uploads the `.vsix` asset.
