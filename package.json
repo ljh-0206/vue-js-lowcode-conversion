@@ -5,6 +5,10 @@
   "version": "0.0.1",
   "publisher": "local",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:ljh-0206/vue-js-lowcode-conversion.git"
+  },
   "engines": {
     "vscode": "^1.85.0"
   },
