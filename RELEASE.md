@@ -8,6 +8,8 @@ Prefer automated publishing with GitHub Actions workflow:
 
 - `.github/workflows/release.yml`
 - Workflow name: `Release VSIX`
+- `.github/workflows/marketplace-publish.yml`
+- Workflow name: `Publish to VS Marketplace`
 
 Manual release remains available as a fallback.
 
@@ -33,6 +35,21 @@ The workflow will:
 - package `.vsix`
 - create/update GitHub Release
 - upload `.vsix` as release asset
+
+## Publish to Visual Studio Marketplace
+
+### Prerequisites
+
+- Visual Studio Marketplace Publisher is created.
+- `package.json` `publisher` matches that Publisher ID.
+- GitHub repo secret `VSCE_PAT` is configured.
+
+### Trigger
+
+- Push a `v*` tag, or
+- Run `Publish to VS Marketplace` from GitHub Actions manually.
+
+The workflow publishes the current extension version from `package.json` to Visual Studio Marketplace.
 
 ## Scope
 
@@ -111,6 +128,7 @@ gh release create v0.0.2 '.\<extension-name>-0.0.2.vsix' --title 'v0.0.2' --note
 - Git commit is created
 - Git tag is pushed
 - GitHub Actions `Release VSIX` run succeeds (recommended path)
+- GitHub Actions `Publish to VS Marketplace` run succeeds
 - GitHub Release is created with the `.vsix` asset
 
 ## Quick Template

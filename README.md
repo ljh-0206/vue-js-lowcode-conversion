@@ -47,3 +47,18 @@ This repository includes [release.yml](.github/workflows/release.yml) for automa
 - Push a tag like `v0.0.2` to trigger auto release.
 - Or run the workflow manually and provide a tag.
 - The workflow compiles, packages the `.vsix`, creates/updates the GitHub Release, and uploads the `.vsix` asset.
+
+## Publish to Visual Studio Marketplace
+
+This repository includes [marketplace-publish.yml](.github/workflows/marketplace-publish.yml).
+
+Prerequisites:
+
+- You have created a Publisher in Visual Studio Marketplace.
+- `package.json` `publisher` matches your Marketplace Publisher ID.
+- GitHub repository secret `VSCE_PAT` is configured (a Marketplace Personal Access Token).
+
+How to trigger:
+
+- Push a tag like `v0.0.2`, or
+- Run `Publish to VS Marketplace` manually in GitHub Actions.

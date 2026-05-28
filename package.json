@@ -3,7 +3,7 @@
     "displayName": "vue-js-lowcode-conversion",
     "description": "Install and update the vue-js-lowcode-conversion Copilot skill on any VS Code device.",
     "version": "0.0.1",
-    "publisher": "local",
+    "publisher": "ljh-0206",
     "license": "MIT",
     "repository": {
         "type": "git",
