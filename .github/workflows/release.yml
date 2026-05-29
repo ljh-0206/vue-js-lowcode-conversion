@@ -2,13 +2,13 @@ name: Release VSIX
 
 on:
   push:
-    branches:
-      - "main"
+    tags:
+      - "v*"
   workflow_dispatch:
     inputs:
       tag:
-        description: "Release tag (default: latest)"
-        required: false
+        description: "Release tag (example: v0.0.2)"
+        required: true
         type: string
 
 permissions:
@@ -34,10 +34,10 @@ jobs:
         id: meta
         shell: bash
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.tag }}" ]; then
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             tag="${{ github.event.inputs.tag }}"
           else
-            tag="latest"
+            tag="${GITHUB_REF_NAME}"
           fi
 
           if [ -z "$tag" ]; then
@@ -72,8 +72,7 @@ jobs:
         with:
           tag: ${{ steps.meta.outputs.tag }}
           name: ${{ steps.meta.outputs.tag }}
-          commit: ${{ github.sha }}
           artifacts: ${{ steps.vsix.outputs.path }}
-          allowUpdates: true
-          replacesArtifacts: true
+          allowUpdates: false
+          replacesArtifacts: false
           generateReleaseNotes: true

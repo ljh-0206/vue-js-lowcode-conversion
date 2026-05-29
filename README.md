@@ -44,6 +44,6 @@ See [RELEASE.md](RELEASE.md) for the generic version bump, packaging, tag, and G
 
 This repository includes [release.yml](.github/workflows/release.yml) for automated publishing.
 
-- Push commits to `main` to auto update GitHub Release `latest`.
-- Or run the workflow manually and provide a custom tag (optional).
-- The workflow compiles, packages the `.vsix`, and creates/updates a GitHub Release with replaced asset.
+- Push a tag like `v0.0.2` to generate a new version Release.
+- Or run the workflow manually and provide a required tag.
+- The workflow compiles, packages the `.vsix`, and creates a GitHub Release for that tag.

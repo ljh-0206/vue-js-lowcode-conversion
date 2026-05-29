@@ -16,21 +16,22 @@ Manual release remains available as a fallback.
 ### Option A: Push tag to trigger
 
 ```powershell
-git push origin main
+git tag -a v0.0.2 -m "Release v0.0.2"
+git push origin v0.0.2
 ```
 
 ### Option B: Run workflow manually
 
 1. Open GitHub repository -> `Actions` -> `Release VSIX`.
 2. Click `Run workflow`.
-3. Optional: provide custom tag input (default is `latest`).
+3. Provide tag input such as `v0.0.2`.
 
 The workflow will:
 
 - install dependencies
 - compile extension
 - package `.vsix`
-- create/update GitHub Release (`latest` by default)
+- create GitHub Release for the specified tag
 - upload `.vsix` as release asset
 
 ## Scope
@@ -108,23 +109,25 @@ gh release create v0.0.2 '.\<extension-name>-0.0.2.vsix' --title 'v0.0.2' --note
 - `npm run compile` passes
 - `npm run package` produces the expected `.vsix`
 - Git commit is created
-- Commit is pushed to `main`
+- Git tag is pushed
 - GitHub Actions `Release VSIX` run succeeds (recommended path)
 - GitHub Release is created with the `.vsix` asset
 
 ## Quick Template
 
-When releasing a normal update, run:
+When releasing `vX.Y.Z`, run:
 
 ```powershell
 npm run compile
 npm run package
 git add .
-git commit -m "chore: release update"
+git commit -m "chore: release vX.Y.Z"
+git tag -a vX.Y.Z -m "Release vX.Y.Z"
 git push origin main
+git push origin vX.Y.Z
 ```
 
-Optional custom tagged release:
+Manual workflow trigger (alternative):
 
 ```powershell
 gh workflow run release.yml -f tag=v0.0.2
