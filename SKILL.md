@@ -48,13 +48,21 @@ return {
 
 ## 转换规则
 
+### 高优先补充规范（实操）
+1. 当源代码中存在 `this.info` 时，Vue -> JS 直接替换为 `_this.info`。
+2. 不需要为了 `info` 映射额外在 `computed` 中新增 `info()`（除非源文件本身已有该计算属性且需保留语义）。
+3. 用户明确要求除乱码字符修正外不得做任何额外逻辑调整、重构或风格改写。
+4. 在“最小改动”模式下，优先保留原有字段顺序、命名和方法结构，仅修改用户点名的目标片段。
+
 ### Vue -> JS
 1. 必须先套内置模板，再填充 `template/data/computed/watch/methods` 与生命周期。
-2. 顶层顺序必须保持：`template -> name -> props -> data -> created -> watch -> computed -> mounted -> methods -> beforeDestroy`。
+2. 顶层顺序必须保持：`template -> name -> [源 Vue 实际声明的选项(如 emits/directives 等，禁止 components)] -> props -> data -> created -> watch -> computed -> mounted -> methods -> beforeDestroy`。
 3. Vue `style` 必须转换为 CSS 文本写入 `styleClass`，不保留 less/scss/sass/stylus 专有语法。
 4. 生成的低代码 JS 不能保留 `import`，可迁移能力改为 `this.commonsJs.xxx` 或项目统一入口。
-5. `mapState('admin/user', ['info'])` 必须转换为 `_this.info`。
+5. `mapState('admin/user', ['info'])` 必须转换为 `_this.info`；若同时出现 `this.info` 访问，也按同一规则替换为 `_this.info`。
 6. 转换时只能依据本 Skill 规则、内置模板与当前源文件内容，不得去项目或仓库中搜索、参考、比对其他示例文件来决定转换结果。
+7. Vue 组件中的可转换选项遵循“有则转、无则不加”：例如源组件声明了 `emits` 才在 JS 中输出 `emits`，未声明则不生成该字段。
+8. 低代码 JS 中禁止输出 `components` 字段；源 Vue 的组件依赖必须改为项目统一注入能力（如全局注册、`this.commonsJs`、运行时注入）或在转换前先由调用方处理。
 
 ### JS -> Vue
 1. 还原 Vue 的 `template/script/style`，保证关键交互与生命周期语义一致。
@@ -76,6 +84,6 @@ return {
 - 样例冲突，无法确定唯一方案。
 
 ## 验收清单
-- Vue -> JS：已套模板、样式已转 CSS、无 import、`mapState` 已转 `_this.info`。
+- Vue -> JS：已套模板、样式已转 CSS、无 import、`mapState`/`this.info` 已按规则转 `_this.info`、未额外新增 `computed.info` 映射（除非源文件本身需要）、源 Vue 已声明的可转换选项(如 `emits`)已保留，未声明项未被硬编码新增、结果中不包含 `components` 字段。
 - JS -> Vue：已移除 `loadCssCode/removeCssCode`、`_this.commonsJs` 已还原、`_this.info` 已还原为 `mapState`。
 - 双向：关键交互与生命周期语义一致，无新增明显语法错误。
