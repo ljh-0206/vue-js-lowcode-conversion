@@ -64,7 +64,7 @@
                                     <div class="jd-circle-inner">
                                         <span class="jd-circle-percent">{{ (Number(zyData.abilityInformation.zsdwcl)
                                             == NaN) || 0
-                                        }}%</span>
+                                            }}%</span>
                                         <span class="jd-circle-label">学习进度</span>
                                     </div>
                                 </i-circle>
@@ -79,7 +79,7 @@
                                     <div class="jd-circle-inner">
                                         <span class="jd-circle-percent">{{
                                             (Number(zyData.abilityInformation.zsdzwd) == NaN) || 0
-                                            }}%</span>
+                                        }}%</span>
                                         <span class="jd-circle-label">掌握度</span>
                                     </div>
                                 </i-circle>
@@ -172,7 +172,7 @@
                             </svg>
 
                         </div>知识点属性<span class="num">{{ zsdInfo.zsdsx ? zsdInfo.zsdsx.length : 0
-                            }}</span>
+                        }}</span>
                     </div>
                     <div class="zsdsx-content">
                         <div v-for="item in zsdInfo.zsdsx" :key="item.id">
@@ -209,7 +209,7 @@
                             </svg>
                         </div>
                         <div class="zsdxq-test-title">知识点试题 <span>· {{ zyData.zsdStList ? zyData.zsdStList.length : 0
-                                }}</span></div>
+                        }}</span></div>
                         <div class="zsdxq-test-status" v-if="yhlx === 'student'">已完成</div>
                     </div>
                     <div class="zsdxq-test-meta" v-if="yhlx === 'student'">掌握度：<span style="color:#0f8e8a">{{
@@ -277,7 +277,7 @@
                                                 <div class="ks-range-icon"
                                                     :style="{ backgroundImage: 'url(' + timebg + ')' }"></div>
                                                 答题时间：<template v-if="item.dtsc && item.dtsc != 0">{{ item.dtsc
-                                                    }}分钟</template><template v-else>不限时</template>
+                                                }}分钟</template><template v-else>不限时</template>
                                             </div>
                                             <div class="ks-range">提交状态：{{ item.ytjcs + '/' + item.xtjcs }}</div>
                                         </div>
@@ -347,7 +347,7 @@
                                                 <div class="ks-range-icon"
                                                     :style="{ backgroundImage: 'url(' + timebg + ')' }"></div>
                                                 答题时间：<template v-if="item.dtsc && item.dtsc != 0">{{ item.dtsc
-                                                    }}分钟</template><template v-else>不限时</template>
+                                                }}分钟</template><template v-else>不限时</template>
                                             </div>
                                             <div class="ks-range">提交状态：{{ item.ytjcs + '/' + item.xtjcs }}</div>
                                         </div>
@@ -418,7 +418,7 @@
                                                 <div class="ks-range-icon"
                                                     :style="{ backgroundImage: 'url(' + timebg + ')' }"></div>
                                                 答题时间：<template v-if="item.dtsc && item.dtsc != 0">{{ item.dtsc
-                                                    }}分钟</template><template v-else>不限时</template>
+                                                }}分钟</template><template v-else>不限时</template>
                                             </div>
                                             <div class="ks-range">提交状态：{{ item.ytjcs + '/' + item.xtjcs }}</div>
                                         </div>
@@ -527,7 +527,7 @@
                                 </div>
                                 答题时间：
                                 <template v-if="zyactive.dtsc && zyactive.dtsc != 0">{{ zyactive.dtsc
-                                }}分钟</template>
+                                    }}分钟</template>
                                 <template v-else>不限时</template>
                             </div>
                             <div class="ks-range" v-if="zyactive.nrlx !== 10">
@@ -583,7 +583,7 @@
                 <Button ghost style="color: #02807f; border-color: #02807f" @click="jsmodal = false">取消</Button>
                 <Button style="background-color: #02807f; color: #fff" @click="handlerViewSj">{{ ModalType == 2 ? '查看' :
                     '重新做'
-                    }}</Button>
+                }}</Button>
             </div>
         </Modal>
     </div>

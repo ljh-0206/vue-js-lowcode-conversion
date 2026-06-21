@@ -10,11 +10,26 @@ const EXTRA_OPTIONS_BEFORE_PROPS = [
 ];
 
 export function generateJsOutput(component: ParsedComponent): string {
-  const { name, template, style, options, moduleSymbols } = component;
+  const { name, template, style, options, moduleSymbols, moduleDeclarations } = component;
   const result: string[] = [];
 
+  const declMap = new Map<string, string>();
+  for (const d of moduleDeclarations) {
+    declMap.set(d.name, d.raw);
+  }
   for (const sym of moduleSymbols) {
-    result.push(`let ${sym} = undefined;`);
+    if (declMap.has(sym)) {
+      const raw = declMap.get(sym)!;
+      if (raw.startsWith('function ') || raw.startsWith('class ')) {
+        result.push(raw);
+      } else if (raw.startsWith('const ') || raw.startsWith('let ') || raw.startsWith('var ')) {
+        result.push('let ' + raw.substring(raw.indexOf(' ') + 1));
+      } else {
+        result.push(`let ${raw};`);
+      }
+    } else {
+      result.push(`let ${sym} = undefined;`);
+    }
   }
   if (moduleSymbols.length > 0) result.push('');
 
@@ -51,7 +66,13 @@ export function generateJsOutput(component: ParsedComponent): string {
   }
 
   if ('computed' in options) {
-    result.push(ensureTrailingComma(formatRawOption(options['computed'], 2)));
+    const cleaned = options['computed'].replace(/\.\.\.mapState\s*\([\s\S]*?\)\s*,?\s*/g, '');
+    const trimmed = cleaned.replace(/\{\s*\}/, '{}');
+    if (/^\s*computed\s*:\s*\{\s*\}\s*$/.test(trimmed)) {
+      result.push('  computed: {},');
+    } else {
+      result.push(ensureTrailingComma(formatRawOption(trimmed, 2)));
+    }
   } else {
     result.push('  computed: {},');
   }

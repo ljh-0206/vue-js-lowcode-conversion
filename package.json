@@ -41,7 +41,8 @@
     "scripts": {
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
-        "package": "vsce package --allow-missing-repository"
+        "package": "vsce package --allow-missing-repository",
+        "build:mcp": "tsc -p ./"
     },
     "overrides": {
         "cheerio": "1.0.0-rc.12"
@@ -55,10 +56,9 @@
         "vsce": "2.10.0"
     },
     "dependencies": {
-        "@babel/generator": "^7.29.7",
         "@babel/parser": "^7.29.7",
         "@babel/traverse": "^7.29.7",
         "@babel/types": "^7.29.7",
-        "@vue/compiler-sfc": "^3.5.35"
+        "@modelcontextprotocol/sdk": "^1.0.0"
     }
 }

@@ -1,20 +1,29 @@
-import * as compiler from '@vue/compiler-sfc';
 import * as parser from '@babel/parser';
 import traverse from '@babel/traverse';
 import * as t from '@babel/types';
 import generate from '@babel/generator';
 import { VueComponent, ImportInfo } from '../types';
 
-export function parseVueSfc(content: string, filename: string): VueComponent {
-  const { descriptor, errors } = compiler.parse(content);
+function extractBlock(content: string, tag: string): string {
+  const regex = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)</${tag}>`);
+  const match = content.match(regex);
+  return match ? match[1].trim() : '';
+}
 
-  if (errors.length > 0) {
-    throw new Error(`SFC parse errors: ${errors.join(', ')}`);
+function extractAllBlocks(content: string, tag: string): string[] {
+  const regex = new RegExp(`<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)</${tag}>`, 'gi');
+  const blocks: string[] = [];
+  let match;
+  while ((match = regex.exec(content)) !== null) {
+    blocks.push(match[1].trim());
   }
+  return blocks;
+}
 
-  const template = descriptor.template?.content || '';
-  const script = descriptor.script?.content || '';
-  const style = descriptor.styles[0]?.content || '';
+export function parseVueSfc(content: string, filename: string): VueComponent {
+  const template = extractBlock(content, 'template');
+  const script = extractBlock(content, 'script');
+  const style = extractAllBlocks(content, 'style').join('\n');
 
   const scriptAst = parser.parse(script, {
     sourceType: 'module',

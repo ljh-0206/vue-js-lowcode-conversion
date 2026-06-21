@@ -1,19 +1,29 @@
-import * as compiler from '@vue/compiler-sfc';
 import * as parser from '@babel/parser';
 import traverse from '@babel/traverse';
 import * as t from '@babel/types';
-import { ParsedComponent } from '../types';
+import { ParsedComponent, ModuleSymbol } from '../types';
+
+function extractBlock(content: string, tag: string): string {
+  const regex = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)</${tag}>`);
+  const match = content.match(regex);
+  return match ? match[1].trim() : '';
+}
+
+function extractAllBlocks(content: string, tag: string): string[] {
+  const regex = new RegExp(`<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)</${tag}>`, 'gi');
+  const blocks: string[] = [];
+  let match;
+  while ((match = regex.exec(content)) !== null) {
+    blocks.push(match[1].trim());
+  }
+  return blocks;
+}
 
 export function parseVueSfc(content: string, _filename: string): ParsedComponent {
-  const { descriptor, errors } = compiler.parse(content);
-
-  if (errors.length > 0) {
-    throw new Error(`SFC parse errors: ${errors.join(', ')}`);
-  }
-
-  const template = descriptor.template?.content || '';
-  const style = descriptor.styles[0]?.content || '';
-  const scriptRaw = descriptor.script?.content || '';
+  const template = extractBlock(content, 'template');
+  const scriptRaw = extractBlock(content, 'script');
+  const styles = extractAllBlocks(content, 'style');
+  const style = styles.join('\n');
 
   const ast = parser.parse(scriptRaw, {
     sourceType: 'module',
@@ -23,6 +33,7 @@ export function parseVueSfc(content: string, _filename: string): ParsedComponent
   let name = '';
   const options: Record<string, string> = {};
   const moduleSymbols: string[] = [];
+  const moduleDeclarations: ModuleSymbol[] = [];
   const importRanges: Array<[number, number]> = [];
 
   traverse(ast, {
@@ -56,6 +67,9 @@ export function parseVueSfc(content: string, _filename: string): ParsedComponent
         path.node.declarations.forEach((decl) => {
           if (t.isIdentifier(decl.id)) {
             moduleSymbols.push(decl.id.name);
+            if (typeof path.node.start === 'number' && typeof path.node.end === 'number') {
+              moduleDeclarations.push({ name: decl.id.name, raw: scriptRaw.substring(path.node.start, path.node.end) });
+            }
           }
         });
       }
@@ -64,12 +78,18 @@ export function parseVueSfc(content: string, _filename: string): ParsedComponent
     FunctionDeclaration(path) {
       if ((path.scope.parent === null || path.parent.type === 'Program') && path.node.id && t.isIdentifier(path.node.id)) {
         moduleSymbols.push(path.node.id.name);
+        if (typeof path.node.start === 'number' && typeof path.node.end === 'number') {
+          moduleDeclarations.push({ name: path.node.id.name, raw: scriptRaw.substring(path.node.start, path.node.end) });
+        }
       }
     },
 
     ClassDeclaration(path) {
       if ((path.scope.parent === null || path.parent.type === 'Program') && path.node.id && t.isIdentifier(path.node.id)) {
         moduleSymbols.push(path.node.id.name);
+        if (typeof path.node.start === 'number' && typeof path.node.end === 'number') {
+          moduleDeclarations.push({ name: path.node.id.name, raw: scriptRaw.substring(path.node.start, path.node.end) });
+        }
       }
     },
   });
@@ -95,6 +115,7 @@ export function parseVueSfc(content: string, _filename: string): ParsedComponent
     style,
     options,
     moduleSymbols,
+    moduleDeclarations,
     importsRemoved: importRanges.length,
   };
 }
