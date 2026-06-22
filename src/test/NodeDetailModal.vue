@@ -1,6 +1,6 @@
 <template>
     <div class="node-detail-modal">
-        <Drawer v-model="zsdShow" :width="700" :title="zsdInfo.zsdmc" :mask-closable="false"
+        <Drawer v-model="zsdShow" :width="700" :title="zsdInfo.zsdmc" :mask="!hideDrawerMask" :mask-closable="false"
             @on-close="closeDetail('zsd')" class-name="zsd-xq-drawer">
             <div class="zsd-xq-header" v-if="yhlx == 'teacher'">
                 <div class="zsd-xq-btn" @click="openzsdxq">详情
@@ -57,14 +57,15 @@
                     <div class="jd-content">
                         <div class="jd-circle-item">
                             <div class="jd-circle-wrapper">
-                                <i-circle :percent="(Number(zyData.abilityInformation.zsdwcl) == NaN) || 0" :size="160"
-                                    :stroke-width="10" :trail-width="10"
+                                <i-circle
+                                    :percent="(Number(zyData.abilityInformation.zsdwcl) == NaN ? 0 : Number(zyData.abilityInformation.zsdwcl))"
+                                    :size="160" :stroke-width="10" :trail-width="10"
                                     :stroke-color="['rgba(46, 163, 241, 1)', 'rgba(32, 225, 158, 1)']"
                                     trail-color="rgba(234, 237, 252, 1)">
                                     <div class="jd-circle-inner">
-                                        <span class="jd-circle-percent">{{ (Number(zyData.abilityInformation.zsdwcl)
-                                            == NaN) || 0
-                                            }}%</span>
+                                        <span class="jd-circle-percent">{{ (Number(zyData.abilityInformation.zsdwcl) ==
+                                            NaN ? 0 : Number(zyData.abilityInformation.zsdwcl))
+                                        }}%</span>
                                         <span class="jd-circle-label">学习进度</span>
                                     </div>
                                 </i-circle>
@@ -72,13 +73,14 @@
                         </div>
                         <div class="jd-circle-item">
                             <div class="jd-circle-wrapper">
-                                <i-circle :percent="(Number(zyData.abilityInformation.zsdzwd) == NaN) || 0" :size="160"
-                                    :stroke-width="10" :trail-width="10"
-                                    :stroke-color="['rgba(46, 163, 241, 1)', 'rgba(32, 225, 158, 1)']"
+                                <i-circle :percent="(Number(zyData.abilityInformation.zsdzwd) ==
+                                    NaN ? 0 : Number(zyData.abilityInformation.zsdzwd))" :size="160" :stroke-width="10"
+                                    :trail-width="10" :stroke-color="['rgba(46, 163, 241, 1)', 'rgba(32, 225, 158, 1)']"
                                     trail-color="rgba(234, 237, 252, 1)">
                                     <div class="jd-circle-inner">
                                         <span class="jd-circle-percent">{{
-                                            (Number(zyData.abilityInformation.zsdzwd) == NaN) || 0
+                                            (Number(zyData.abilityInformation.zsdzwd) ==
+                                                NaN ? 0 : Number(zyData.abilityInformation.zsdzwd))
                                         }}%</span>
                                         <span class="jd-circle-label">掌握度</span>
                                     </div>
@@ -153,7 +155,8 @@
                             <div class="sfwc" v-if="item.sfwc == '1' && yhlx === 'student' && sfzyxxms">
                                 <Icon type="md-checkmark-circle" color="rgba(2, 128, 127, 1)" size="18" />
                             </div>
-                            <div class="fm" :style="{ 'background-image': 'url(' + kcfmUrl + ')' }">
+                            <div class="fm"
+                                :style="{ 'background-image': 'url(' + item.fmdz ? item.fmdz : kcfmUrl + ')' }">
                                 <div class="lx">{{ getnrLx(item.nrlx) }}</div>
                             </div>
                             <div class="zy-title" :title="item.lmmc">{{ item.lmmc }}</div>
@@ -172,7 +175,7 @@
                             </svg>
 
                         </div>知识点属性<span class="num">{{ zsdInfo.zsdsx ? zsdInfo.zsdsx.length : 0
-                        }}</span>
+                            }}</span>
                     </div>
                     <div class="zsdsx-content">
                         <div v-for="item in zsdInfo.zsdsx" :key="item.id">
@@ -190,7 +193,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="zsdxq-test-box" v-if="zyData.zsdStList && zyData.zsdStList.length > 0 && !stloading">
+                <div class="zsdxq-test-box"
+                    v-if="zyData.zsdStList && zyData.zsdStList.sjtmList && zyData.zsdStList.sjtmList.length > 0">
                     <div class="zsdxq-test-header">
                         <div class="icon">
                             <svg viewBox="0 0 14.8834 13.9674" xmlns="http://www.w3.org/2000/svg"
@@ -208,23 +212,54 @@
                                     fill="url(#paint_linear_0)" fill-rule="nonzero" />
                             </svg>
                         </div>
-                        <div class="zsdxq-test-title">知识点试题 <span>· {{ zyData.zsdStList ? zyData.zsdStList.length : 0
-                        }}</span></div>
+                        <div class="zsdxq-test-title">知识点试题 <span>· {{ zyData.zsdStList ?
+                            zyData.zsdStList.sjtmList.length : 0
+                                }}</span></div>
                         <div class="zsdxq-test-status" v-if="yhlx === 'student'">已完成</div>
                     </div>
+                    <!-- <div class="zsdxq-test-meta" v-if="yhlx === 'student'">掌握度：<span style="color:#0f8e8a">{{
+                        showZsdSjBfb(zyData.zsdStList) }}</span></div> -->
                     <div class="zsdxq-test-meta" v-if="yhlx === 'student'">掌握度：<span style="color:#0f8e8a">{{
-                        showZsdSjBfb(zyData.zsdStList) }}</span></div>
+                        zyData.zsdStList.xssjdjfs }}%</span>
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
+                            @click="zsdTestClick(zyData.zsdStList)" xmlns:xlink="http://www.w3.org/1999/xlink"
+                            width="24.000000" height="24.000000" fill="none" customFrame="#000000">
+                            <defs>
+                                <clipPath id="clipPath_0">
+                                    <rect width="9.999999" height="9.999999" x="0.000000" y="0.000000"
+                                        fill="rgb(255,255,255)"
+                                        transform="matrix(0.707107,-0.707107,0.707107,0.707107,5,12.0703)" />
+                                </clipPath>
+                            </defs>
+                            <g id="组合 1189">
+                                <circle id="椭圆 129" cx="12" cy="12" r="12" fill="rgb(230,228,248)" />
+                                <g id="箭头_右 3" clip-path="url(#clipPath_0)" customFrame="url(#clipPath_0)">
+                                    <rect id="箭头_右 3" width="9.999999" height="9.999999" x="0.000000" y="0.000000"
+                                        transform="matrix(0.707107,-0.707107,0.707107,0.707107,5,12.0703)" />
+                                    <path id="矢量 66"
+                                        d="M2.6077e-07 0.625C2.6077e-07 0.28125 0.28125 0 0.625 0L8.125 0C8.46875 0 8.75 0.28125 8.75 0.625C8.75 0.96875 8.46875 1.25 8.125 1.25L0.625 1.25C0.28125 1.24999 0 0.96874 0 0.625L2.6077e-07 0.625Z"
+                                        fill="rgb(96,79,253)" fill-rule="nonzero"
+                                        transform="matrix(0.707107,-0.707107,0.707107,0.707107,8.53564,14.7217)" />
+                                    <path id="矢量 67"
+                                        d="M0.182264 2.68414L2.68428 0.182234C2.92726 -0.0607446 3.32489 -0.0607446 3.56789 0.182234C3.81091 0.425232 3.81091 0.822878 3.56789 1.06588L1.06587 3.56779C0.822879 3.81077 0.425252 3.81077 0.182254 3.56779C-0.0607532 3.32478 -0.0607532 2.92715 0.182264 2.68414L0.182264 2.68414Z"
+                                        fill="rgb(96,79,253)" fill-rule="nonzero"
+                                        transform="matrix(0.707107,-0.707107,0.707107,0.707107,12.0708,11.1865)" />
+                                    <path id="矢量 68"
+                                        d="M0.182264 1.06589L2.68428 3.56779C2.92726 3.81077 3.32489 3.81077 3.56789 3.56779C3.81091 3.32479 3.81091 2.92715 3.56789 2.68415L1.06587 0.182234C0.822879 -0.0607446 0.425252 -0.0607446 0.182254 0.182234C-0.0607532 0.425242 -0.0607532 0.822878 0.182264 1.06589L0.182264 1.06589Z"
+                                        fill="rgb(96,79,253)" fill-rule="nonzero"
+                                        transform="matrix(0.707107,-0.707107,0.707107,0.707107,10.3032,9.41895)" />
+                                </g>
+                            </g>
+                        </svg>
+                    </div>
                     <div class="zsdxq-test-list">
-                        <div class="zsdxq-test-item" v-for="item in zyData.zsdStList" :key="item.fbsjid"
-                            @click="zsdTestClick(item)">
-                            <span class="test-type">{{ getnrLx(item.sjlx) }}</span>
-                            <p>{{ item.sjmc }}</p>
+                        <div class="zsdxq-test-item" v-for="item in zyData.zsdStList.sjtmList" :key="item.fbsjid">
+                            <span class="test-type">{{ item.tmlxmc }}</span>
+                            <p v-html="item.tg"></p>
                         </div>
                     </div>
                 </div>
-                <div v-if="stloading" style="position: relative;width:100%;height:100px;">
-                    <Spin fix>加载中...</Spin>
-                </div>
+
             </div>
         </Drawer>
 
@@ -277,7 +312,7 @@
                                                 <div class="ks-range-icon"
                                                     :style="{ backgroundImage: 'url(' + timebg + ')' }"></div>
                                                 答题时间：<template v-if="item.dtsc && item.dtsc != 0">{{ item.dtsc
-                                                }}分钟</template><template v-else>不限时</template>
+                                                    }}分钟</template><template v-else>不限时</template>
                                             </div>
                                             <div class="ks-range">提交状态：{{ item.ytjcs + '/' + item.xtjcs }}</div>
                                         </div>
@@ -347,7 +382,7 @@
                                                 <div class="ks-range-icon"
                                                     :style="{ backgroundImage: 'url(' + timebg + ')' }"></div>
                                                 答题时间：<template v-if="item.dtsc && item.dtsc != 0">{{ item.dtsc
-                                                }}分钟</template><template v-else>不限时</template>
+                                                    }}分钟</template><template v-else>不限时</template>
                                             </div>
                                             <div class="ks-range">提交状态：{{ item.ytjcs + '/' + item.xtjcs }}</div>
                                         </div>
@@ -418,7 +453,7 @@
                                                 <div class="ks-range-icon"
                                                     :style="{ backgroundImage: 'url(' + timebg + ')' }"></div>
                                                 答题时间：<template v-if="item.dtsc && item.dtsc != 0">{{ item.dtsc
-                                                }}分钟</template><template v-else>不限时</template>
+                                                    }}分钟</template><template v-else>不限时</template>
                                             </div>
                                             <div class="ks-range">提交状态：{{ item.ytjcs + '/' + item.xtjcs }}</div>
                                         </div>
@@ -527,7 +562,7 @@
                                 </div>
                                 答题时间：
                                 <template v-if="zyactive.dtsc && zyactive.dtsc != 0">{{ zyactive.dtsc
-                                    }}分钟</template>
+                                }}分钟</template>
                                 <template v-else>不限时</template>
                             </div>
                             <div class="ks-range" v-if="zyactive.nrlx !== 10">
@@ -583,7 +618,7 @@
                 <Button ghost style="color: #02807f; border-color: #02807f" @click="jsmodal = false">取消</Button>
                 <Button style="background-color: #02807f; color: #fff" @click="handlerViewSj">{{ ModalType == 2 ? '查看' :
                     '重新做'
-                }}</Button>
+                    }}</Button>
             </div>
         </Modal>
     </div>
@@ -604,7 +639,8 @@ export default {
         activeNode: { type: Object, required: true },
         sfzyxxms: { type: Boolean, default: false },
         kcfmUrl: { type: String, default: '' },
-        xxjd: { type: Number, default: 0 }
+        xxjd: { type: Number, default: 0 },
+        hideDrawerMask: { type: Boolean, default: false }
     },
     data() {
         return {
@@ -615,7 +651,14 @@ export default {
                 zsdsx: []
             },
             zyData: {
-                abilityInformation: {}
+                abilityInformation: {},
+                abilityResources: [],
+                zsdStList: {
+                    sjtmList: []
+                },
+                zyStList: [],
+                ksStList: [],
+                cyStList: []
             },
             stData: {
                 zyStList: [],
@@ -656,7 +699,6 @@ export default {
             ModalType: 1,
             rowInfo: {},
             wclist: [],
-            stloading: false,
             videoId: null,
             currentTime: 0,
             catalogDrawerVisible: false,
@@ -826,17 +868,33 @@ export default {
         getZsdSjList() {
             let data = this.activeNode.data.info;
             let zsdStUrl = this.requestUrl[this.yhlx == 'student' ? 'student' : 'teacher']['getZsdStList'];
-            this.stloading = true;
+            // let zsdStUrl = this.requestUrl['teacher']['getZsdStList'];
             this.commonsJs.incoRequest_self(zsdStUrl, 'get', {
                 kcid: this.kcid,
                 kkid: this.kkid,
                 yhdm: this.info.yhdm,
                 lmid: data.zsdid,
+                zsdid: data.zsdid,
                 sjlx: '10'
             }).then((res) => {
+                console.log('获取知识点学生列表：', res);
+                if (this.yhlx == 'student' && res.length > 0) {
+                    this.commonsJs.incoRequest_self(this.requestUrl['teacher']['getZsdStList'], 'get', {
+                        kcid: this.kcid,
+                        kkid: this.kkid,
+                        yhdm: this.info.yhdm,
+                        lmid: data.zsdid,
+                        zsdid: data.zsdid,
+                        sjlx: '10'
+                    }).then((obj) => {
+                        console.log('获取obj列表：', obj);
+                        this.$set(this.zyData, 'zsdStList', {
+                            ...res[0],
+                            sjtmList: obj.sjtmList
+                        });
+                    })
+                }
                 this.$set(this.zyData, 'zsdStList', res);
-            }).finally(() => {
-                this.$set(this, 'stloading', false);
             });
         },
         openzsdxq() {
@@ -861,7 +919,14 @@ export default {
                 this.zsdShow = false;
             }
             this.zyData = {
-                abilityInformation: {}
+                abilityInformation: {},
+                abilityResources: [],
+                zsdStList: {
+                    sjtmList: []
+                },
+                zyStList: [],
+                ksStList: [],
+                cyStList: []
             };
             if (this.yhlx === 'student') {
                 this.commonsJs.incoRequest_self(
@@ -1156,6 +1221,7 @@ export default {
                         sjryid: item.sjryid,
                         sjjgid: item.sjjgid,
                         ytjcs: item.ytjcs,
+                        bjid: this.bjid,
                         sjlx: '10'
                     }
                 }).href
@@ -1231,7 +1297,6 @@ export default {
         },
         handleLearnKnowledge() {
             if (this.yhlx === 'preview') return
-            console.log('学习知识点 zyData:', this.zyData);
             let url = this.$router.resolve({
                 name: 'common-xsxxymai',
                 query: {
@@ -1990,13 +2055,19 @@ export default {
     font-weight: bold;
     color: #333;
     margin-bottom: 0;
-    width: 105px;
+    width: 120px;
     height: 24px;
     line-height: 24px;
     position: absolute;
     right: 0;
     top: 21px;
     z-index: 11;
+}
+
+.zsdxq-test-meta svg {
+    vertical-align: middle;
+    margin-left: 4px;
+    cursor: pointer;
 }
 
 .zsdxq-test-list {
@@ -2009,7 +2080,7 @@ export default {
     background: #edf4f3;
     border-radius: 12px;
     padding: 16px;
-    cursor: pointer;
+    /* cursor: pointer; */
 }
 
 .test-type {

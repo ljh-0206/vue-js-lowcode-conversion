@@ -15,7 +15,12 @@ export function generateJsOutput(component: ParsedComponent): string {
   const transformedTemplate = transformThisRefs(template);
   const transformedOptions: Record<string, string> = {};
   for (const [key, value] of Object.entries(options)) {
-    transformedOptions[key] = transformThisRefs(value);
+    const transformed = transformThisRefs(value);
+    if (key === 'computed') {
+      transformedOptions[key] = transformed.replace(/^\s*\/\/ _this\.info\s*,?\s*/gm, '');
+    } else {
+      transformedOptions[key] = transformed;
+    }
   }
   const transformedDeclarations = moduleDeclarations.map(d => ({
     ...d,
