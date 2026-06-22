@@ -11,10 +11,21 @@ const EXTRA_OPTIONS_BEFORE_PROPS = [
 
 export function generateJsOutput(component: ParsedComponent): string {
   const { name, template, style, options, moduleSymbols, moduleDeclarations } = component;
+
+  const transformedTemplate = transformThisRefs(template);
+  const transformedOptions: Record<string, string> = {};
+  for (const [key, value] of Object.entries(options)) {
+    transformedOptions[key] = transformThisRefs(value);
+  }
+  const transformedDeclarations = moduleDeclarations.map(d => ({
+    ...d,
+    raw: transformThisRefs(d.raw),
+  }));
+
   const result: string[] = [];
 
   const declMap = new Map<string, string>();
-  for (const d of moduleDeclarations) {
+  for (const d of transformedDeclarations) {
     declMap.set(d.name, d.raw);
   }
   for (const sym of moduleSymbols) {
@@ -37,59 +48,58 @@ export function generateJsOutput(component: ParsedComponent): string {
   result.push(`let styleClass = \`${escapeTemplateLiteral(style)}\`;`);
   result.push('');
   result.push('return {');
-  result.push(`  template: \`${escapeTemplateLiteral(template)}\`,`);
+  result.push(`  template: \`${escapeTemplateLiteral(transformedTemplate)}\`,`);
   result.push('  name: name,');
 
   for (const key of EXTRA_OPTIONS_BEFORE_PROPS) {
-    if (key in options) {
-      result.push(ensureTrailingComma(formatRawOption(options[key], 2)));
+    if (key in transformedOptions) {
+      result.push(ensureTrailingComma(formatRawOption(transformedOptions[key], 2)));
     }
   }
 
-  result.push(generateMergedProps(options['props']));
+  result.push(generateMergedProps(transformedOptions['props']));
 
-  if ('data' in options) {
-    result.push(ensureTrailingComma(formatRawOption(options['data'], 2)));
+  if ('data' in transformedOptions) {
+    result.push(ensureTrailingComma(formatRawOption(transformedOptions['data'], 2)));
   } else {
     result.push('  data() {');
     result.push('    return {};');
     result.push('  },');
   }
 
-  result.push(generateAugmentedHook('created', options['created'],
+  result.push(generateAugmentedHook('created', transformedOptions['created'],
     'this.commonsJs.loadCssCode(styleClass, name + this._uid)'));
 
-  if ('watch' in options) {
-    result.push(ensureTrailingComma(formatRawOption(options['watch'], 2)));
+  if ('watch' in transformedOptions) {
+    result.push(ensureTrailingComma(formatRawOption(transformedOptions['watch'], 2)));
   } else {
     result.push('  watch: {},');
   }
 
-  if ('computed' in options) {
-    const cleaned = options['computed'].replace(/\.\.\.mapState\s*\([\s\S]*?\)\s*,?\s*/g, '');
-    const trimmed = cleaned.replace(/\{\s*\}/, '{}');
-    if (/^\s*computed\s*:\s*\{\s*\}\s*$/.test(trimmed)) {
+  if ('computed' in transformedOptions) {
+    const noComments = transformedOptions['computed'].replace(/\/\/.*/g, '').trim();
+    if (/^\s*computed\s*:\s*\{\s*\}\s*$/.test(noComments)) {
       result.push('  computed: {},');
     } else {
-      result.push(ensureTrailingComma(formatRawOption(trimmed, 2)));
+      result.push(ensureTrailingComma(formatRawOption(transformedOptions['computed'], 2)));
     }
   } else {
     result.push('  computed: {},');
   }
 
-  if ('mounted' in options) {
-    result.push(ensureTrailingComma(formatRawOption(options['mounted'], 2)));
+  if ('mounted' in transformedOptions) {
+    result.push(ensureTrailingComma(formatRawOption(transformedOptions['mounted'], 2)));
   } else {
     result.push('  mounted() {},');
   }
 
-  if ('methods' in options) {
-    result.push(ensureTrailingComma(formatRawOption(options['methods'], 2)));
+  if ('methods' in transformedOptions) {
+    result.push(ensureTrailingComma(formatRawOption(transformedOptions['methods'], 2)));
   } else {
     result.push('  methods: {},');
   }
 
-  result.push(generateAugmentedHook('beforeDestroy', options['beforeDestroy'],
+  result.push(generateAugmentedHook('beforeDestroy', transformedOptions['beforeDestroy'],
     'this.commonsJs.removeCssCode(name + this._uid)'));
 
   result.push('};');
@@ -100,6 +110,18 @@ export function generateJsOutput(component: ParsedComponent): string {
 
 function escapeTemplateLiteral(text: string): string {
   return text.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\${/g, '\\${');
+}
+
+function transformThisRefs(code: string): string {
+  let result = code;
+  // ...mapState('admin/user', ['info']) → // _this.info
+  result = result.replace(
+    /\.\.\.mapState\s*\(\s*['"]admin\/user['"]\s*,\s*\[\s*['"]info['"]\s*\]\s*\)\s*,?(\s*)/g,
+    '// _this.info$1'
+  );
+  // this.info → _this.info
+  result = result.replace(/\bthis\.info\b/g, '_this.info');
+  return result;
 }
 
 function formatRawOption(raw: string, baseIndent: number): string {

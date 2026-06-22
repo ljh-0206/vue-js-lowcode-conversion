@@ -4,7 +4,7 @@ import * as t from '@babel/types';
 import { ParsedComponent, ModuleSymbol } from '../types';
 
 function extractBlock(content: string, tag: string): string {
-  const regex = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)</${tag}>`);
+  const regex = new RegExp(`<${tag}[^>]*>([\\s\\S]*)</${tag}>`);
   const match = content.match(regex);
   return match ? match[1].trim() : '';
 }

@@ -27,7 +27,8 @@ node out/ds/convert.js vue-to-js 输入文件.vue
 | 模块级 `const`/`let`/`function`/`class` | `const` 转 `let`，保留实际值 |
 | `created` / `beforeDestroy` | 注入 `commonsJs.loadCssCode` / `removeCssCode` |
 | `props` | 合并骨架默认 props + 源文件 props |
-| `computed` 中的 `...mapState(...)` | 删除（模板中用 `_this.xxx` 替代语义） |
+| `this.info` | 转 `_this.info` |
+| `...mapState('admin/user', ['info'])` | 转 `// _this.info`（而非删除） |
 
 ### 输出顺序
 
